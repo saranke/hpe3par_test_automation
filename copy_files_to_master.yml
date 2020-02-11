@@ -1,0 +1,14 @@
+---
+
+- hosts: masters
+  become: true
+
+  tasks:
+  - name: copy csi workaround and config files to master node
+    copy:
+      src: "{{ item }}"
+      dest: /root
+    with_fileglob:
+      - csi_fix.yml
+      - hosts
+      - config/config.yaml
