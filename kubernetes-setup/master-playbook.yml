@@ -212,6 +212,12 @@
     command: cat /root/.ssh/id_rsa.pub
     register: public_key
 
+  - name: copy public key to own for ssh connectivity to self
+    authorized_key:
+      user: root
+      state: present
+      key: "{{  public_key.stdout_lines[0]  }}"
+
   - name: Copy public key to local file
     local_action: copy content="{{ public_key.stdout_lines[0] }}" dest="./public-key"
     
