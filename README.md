@@ -14,6 +14,8 @@ IPs, k8s version and proxy settings are configurable and to be modified in confi
   - [Vagrant installation](https://phoenixnap.com/kb/how-to-install-vagrant-on-centos-7)
 - Disable strick host checking for ansible, set below env variable:
     - $ export ANSIBLE_HOST_KEY_CHECKING=False
+- Install proxy plugin for vagrant
+    - $ vagrant plugin install vagrant-proxyconf
 - Clone the python-hpedockerplugin repository
   - $ cd ~
   - $ git clone -b k8s_cluster_vagrant https://github.com/saranke/hpe3par_test_automation.git
