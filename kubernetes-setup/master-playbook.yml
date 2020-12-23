@@ -58,6 +58,8 @@
       - lvm2
       - git
       - wget
+      - python3
+      - python-setuptools
         
   - name: Add Docker repo
     get_url:
@@ -147,42 +149,27 @@
      mkdir -p $HOME/.kube
      sudo cp -f /etc/kubernetes/admin.conf $HOME/.kube/config
      sudo chown $(id -u):$(id -g) $HOME/.kube/config
-     
-  - name: Install Network Add-on
-    command: kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/2140ac876ef134e0ed5af15c65e414cf26827915/Documentation/kube-flannel.yml 
-    
+  
+  - name: copy kube-flannel config
+    copy:
+      src: "kube-flannel.yml"
+      dest: /root
+      
+  - name: setting up Flannel CNI network
+    command: kubectl apply -f /root/kube-flannel.yml 
+
   - name: Generate join command
     command: kubeadm token create --print-join-command
     register: join_command
 
   - name: Copy join command to local file
     local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
-   
-  - name: download get-pip.py
-    get_url:
-      url: http://bootstrap.pypa.io/get-pip.py
-      dest: /tmp
-
-  - name: install pip
-    command: "python /tmp/get-pip.py"
-
-  - name: delete get-pip.py
-    file:
-      state: absent
-      path: /tmp/get-pip.py
-    
-  - name: Uninstall docker old packages
-    pip:
-      name: "{{ item }}"
-      state: absent
-    with_items:
-      - docker
-      - docker-py
         
   - name: Install required python packages
     pip:
       name: "{{ item }}"
       state: latest
+      executable: pip3
     with_items:
       - pytest
       - PyYAML
@@ -220,9 +207,45 @@
 
   - name: Copy public key to local file
     local_action: copy content="{{ public_key.stdout_lines[0] }}" dest="./public-key"
-    
+ 
   - name: restart service
     service:
       name: sshd
       state: restarted
+      
+  - name: Create directory for helm 
+    shell: |
+     mkdir -p /root/helm
+     mkdir -p /root/csp_installer
+     
+  - name: download helm binary
+    get_url:
+      url: https://get.helm.sh/helm-v3.3.0-linux-amd64.tar.gz
+      dest: /root/helm
+      
+  - name: Un-tar helm  
+    shell: |
+     cd /root/helm
+     tar -zxvf helm-v3.3.0-linux-amd64.tar.gz
+     mv linux-amd64/helm /usr/bin/helm
+     
+  - name: copy helm tgz  
+    copy:
+      src: "../hpe-csi-driver-1.4.0-beta.tgz"
+      dest: /root/csp_installer
+
+  - name: copy values.yaml
+    copy:
+      src: "../values_3par.yaml"
+      dest: /root/csp_installer
+      
+  - name: install CSI/CSP  
+    shell: |
+     cd /root/csp_installer
+     helm install hpe-csi hpe-csi-driver-1.4.0-beta.tgz --namespace kube-system -f values_3par.yaml
+     
+     
+
+
+     
 
