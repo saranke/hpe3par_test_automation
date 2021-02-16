@@ -221,12 +221,12 @@
      
   - name: copy helm tgz  
     copy:
-      src: "../hpe-csi-driver-1.4.0-beta.tgz"
+      src: "../hpe-csi-driver-1.4.0-beta-config-img.tgz"
       dest: /root/csp_installer
 
   - name: copy values.yaml
     copy:
-      src: "../values_3par.yaml"
+      src: "../values.yaml"
       dest: /root/csp_installer
 
   - name: create namespace
