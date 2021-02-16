@@ -50,16 +50,8 @@
 
   - name: Install required pkgs
     yum:
-      name: "{{ item }}"
+      name: ['yum-utils', 'device-mapper-persistent-data', 'lvm2', 'git', 'wget', 'python3', 'python-setuptools']
       state: latest
-    with_items:
-      - yum-utils
-      - device-mapper-persistent-data
-      - lvm2
-      - git
-      - wget
-      - python3
-      - python-setuptools
         
   - name: Add Docker repo
     get_url:
@@ -164,20 +156,18 @@
 
   - name: Copy join command to local file
     local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
-        
-  - name: Install required python packages
+      
+  - name: pip self-update
     pip:
-      name: "{{ item }}"
+      name: pip
       state: latest
       executable: pip3
-    with_items:
-      - pytest
-      - PyYAML
-      - kubernetes
-      - python-3parclient
-      - oslo_serialization
-      - docker
-      - ansible==2.7.12
+ 
+  - name: Install required python packages
+    pip:
+      name: ['pytest', 'PyYAML', 'kubernetes', 'python-3parclient', 'oslo_serialization', 'docker', 'ansible==2.7.12']
+      state: latest
+      executable: pip3
       
   - name: update etchosts
     lineinfile:
@@ -238,11 +228,19 @@
     copy:
       src: "../values_3par.yaml"
       dest: /root/csp_installer
+
+  - name: create namespace
+    shell: kubectl create namespace hpe-storage
       
-  - name: install CSI/CSP  
+  - name: Add and update repo in helm
     shell: |
-     cd /root/csp_installer
-     helm install hpe-csi hpe-csi-driver-1.4.0-beta.tgz --namespace kube-system -f values_3par.yaml
+     helm repo add hpe https://hpe-storage.github.io/co-deployments
+     helm repo update
+
+  #- name: install CSI/CSP( from repo)
+  #  shell: |
+  #   cd /root/csp_installer
+  #   helm install hpe-csi hpe-csi-driver-1.4.0-beta.tgz --namespace kube-system -f values_3par.yaml
      
      
 
