@@ -1,9 +1,13 @@
 # Default values for hpe-csi-storage.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-
+images:
+  # csi-driver
+  csiDriverImage: quay.io/hpestorage/csi-driver:v1.4.0 
+  # csp-hpe
+  cspImage: quay.io/arankes/hpe3parprimera-csp:test
 # image pull policy for all images in csi deployment
-imagePullPolicy: 'IfNotPresent'
+imagePullPolicy: 'Always'
 
 # flavor
 flavor: kubernetes
@@ -21,5 +25,4 @@ iscsi:
 
 # registry prefix for hpe csi images
 registry: "quay.io"
-
 
