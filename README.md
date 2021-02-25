@@ -35,7 +35,7 @@ IPs, k8s version and proxy settings are configurable and to be modified in confi
     - helm repo update
     - helm install hpe-csi hpe/hpe-csi-driver --namespace hpe-storage
   - Install with tgz
-    - helm install hpe-csi <tgz-file> -n <namespace> -f values.yml
+    - helm install hpe-csi <tgz_file> -n <namespace> -f values.yml
   
     
   ### Deploy flex volume plugin 
